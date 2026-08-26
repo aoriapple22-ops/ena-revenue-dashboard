@@ -1,0 +1,15 @@
+# 의존성 / 빌드 산출물
+node_modules/
+.next/
+.vercel/
+
+# 비밀 정보
+.env
+.env.*
+!.env.example
+
+# 사내 실적 데이터 (공개 저장소에 올리지 않음)
+templates/
+*.xlsx
+*.xls
+*.csv
