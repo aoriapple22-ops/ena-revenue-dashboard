@@ -13,3 +13,6 @@ templates/
 *.xlsx
 *.xls
 *.csv
+
+.vercel
+.env*

@@ -111,6 +111,59 @@ tbody tr:hover { background: #fcfcff; }
 .home-grid a.tile h2 { color: var(--ena-blue); margin: 0 0 8px; font-size: 15px; }
 .home-grid a.tile p { margin: 0; font-size: 12.5px; color: var(--muted); line-height: 1.5; }
 
+/* ---- 로그인 ---- */
+.login-wrap {
+  min-height: 78vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.login-card {
+  width: 100%;
+  max-width: 380px;
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--ena-blue);
+  border-radius: 12px;
+  padding: 34px 30px;
+}
+.login-brand { font-size: 13px; font-weight: 700; color: var(--ena-blue); letter-spacing: 0.02em; }
+.login-title { font-size: 22px; margin: 6px 0 10px; }
+.login-desc { font-size: 13px; color: var(--muted); margin: 0 0 22px; line-height: 1.6; }
+.login-input {
+  width: 100%;
+  padding: 11px 13px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+}
+.login-input:focus { outline: 2px solid var(--ena-blue); outline-offset: -1px; border-color: var(--ena-blue); }
+.login-btn {
+  width: 100%;
+  margin-top: 14px;
+  padding: 11px;
+  background: var(--ena-blue);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+.login-btn:disabled { background: #b9b6ee; cursor: not-allowed; }
+.login-error {
+  margin-top: 12px;
+  background: #fef3f2;
+  border: 1px solid #fda29b;
+  color: #b42318;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 12.5px;
+}
+.login-foot { font-size: 11.5px; color: var(--muted); margin: 18px 0 0; text-align: center; }
+
 .note {
   background: #fffbf5;
   border: 1px solid #fedf89;
