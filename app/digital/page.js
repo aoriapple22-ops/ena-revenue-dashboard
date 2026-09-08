@@ -1,4 +1,4 @@
-import { fetchAll, netRevenue } from "@/lib/queries";
+import { fetchAll, netRevenue, latestActualMonth } from "@/lib/queries";
 import { won, num, eok } from "@/lib/format";
 import YearFilter from "@/components/YearFilter";
 
@@ -29,6 +29,7 @@ export default async function DigitalPage({ searchParams }) {
 
   const total = agg(() => true);
   const estimated = rows.some((r) => r.actual_type === "추정");
+  const lastMonth = latestActualMonth(digital, year);
 
   return (
     <div>
@@ -77,7 +78,7 @@ export default async function DigitalPage({ searchParams }) {
 
       {estimated && (
         <div className="note">
-          {year}년 <strong>12월은 추정치</strong>입니다 (원본 자료 기준 11월까지 실적).
+          {year}년 실적은 <strong>1~{lastMonth}월분</strong>까지이고, 나머지는 추정치가 포함되어 있습니다.
         </div>
       )}
 

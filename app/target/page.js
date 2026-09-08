@@ -1,4 +1,4 @@
-import { fetchAll, netRevenue, targetItemTypes } from "@/lib/queries";
+import { fetchAll, netRevenue, targetItemTypes, latestActualMonth } from "@/lib/queries";
 import { won, num, pct, rateClass, eok } from "@/lib/format";
 import YearFilter from "@/components/YearFilter";
 
@@ -47,6 +47,7 @@ export default async function TargetPage({ searchParams }) {
 
   // month=0 은 "연간 목표만 있음"을 뜻한다. 월별 표는 월 단위 목표가 있을 때만 보여준다.
   const hasMonthlyTarget = tRows.some((t) => t.month >= 1);
+  const lastMonth = Math.max(latestActualMonth(digital, year) || 0, latestActualMonth(nsd, year) || 0) || null;
 
   const availMetrics = [...new Set(targets.filter((t) => t.year === year).map((t) => t.metric))];
 
@@ -85,10 +86,10 @@ export default async function TargetPage({ searchParams }) {
         ]}
       />
 
-      {year === 2026 && (
+      {lastMonth && lastMonth < 12 && (
         <div className="note">
-          2026년 실적은 <strong>1~3월분만</strong> 반영되어 있습니다. 연간 목표와 비교하는
-          값이므로 달성률이 낮게 보이는 것이 정상입니다.
+          {year}년 실적은 <strong>1~{lastMonth}월분</strong>까지 반영되어 있습니다. 연간 목표와
+          비교하는 값이므로 달성률이 낮게 보이는 것이 정상입니다.
         </div>
       )}
 

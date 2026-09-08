@@ -1,4 +1,4 @@
-import { fetchAll, netRevenue, digitalActualForTargets } from "@/lib/queries";
+import { fetchAll, netRevenue, digitalActualForTargets, latestActualMonth } from "@/lib/queries";
 import { eok, num, pct, rateClass } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -31,7 +31,7 @@ export default async function HomePage() {
     <div>
       <h1>신성장센터 매출 대시보드</h1>
       <p className="subtitle">
-        2024~2026년 신사업개발팀·디지털사업팀 실적 · 신사업 매출은 계약 기준
+        2024~2026년 신사업개발팀·디지털사업팀 실적 · 신사업 매출은 회계 기준
       </p>
 
       <div className="kpi-grid">
@@ -104,14 +104,22 @@ export default async function HomePage() {
       <div className="note">
         <strong>데이터 범위 안내</strong><br />
         · 신사업개발팀 매출은 전 연도 <strong>회계 기준</strong>입니다. 24년은 사업군 분해 자료가 없어 총액만 있습니다.<br />
-        · 디지털사업팀 26년 실적은 <strong>1~8월분</strong>까지 반영되어 있습니다.<br />
+        · 디지털사업팀 실적 반영 현황:{" "}
+        {years
+          .map((y) => {
+            const m = latestActualMonth(digital, y);
+            return m ? `${y}년 1~${m}월` : null;
+          })
+          .filter(Boolean)
+          .join(" · ")}
+        <br />
         · 프로그램별 수치는 ENA 채널 기준이라 채널별 매출과 합산하지 않습니다.
       </div>
 
       <div className="home-grid">
         <a className="tile" href="/nsd">
           <h2>신사업개발팀 매출</h2>
-          <p>건기식·브랜디드·기타사업(협찬)·커머스 4개 사업군. 25년 월별 및 전년 대비.</p>
+          <p>사업군별 월별 매출과 목표 대비 달성률. 회계 기준, 연도별 사업군 체계 표시.</p>
         </a>
         <a className="tile" href="/digital">
           <h2>디지털 채널별</h2>
