@@ -19,10 +19,12 @@ export default async function TargetPage({ searchParams }) {
       .filter((t) => t.item === item && (month === null || t.month === month))
       .reduce((s, t) => s + Number(t.value), 0);
 
+  // 신사업 사업군은 연도별로 체계가 달라 데이터에서 뽑는다 (하드코딩 금지)
+  const NSD_CATS = new Set(nsd.map((r) => r.category));
+
   // 실적 매칭: 사업군명은 신사업, 그 외는 디지털 매출구분/채널
   const actualOf = (item, month) => {
-    const CATS = ["건기식", "브랜디드", "기타사업(협찬)", "커머스"];
-    if (metric === "매출" && CATS.includes(item)) {
+    if (metric === "매출" && NSD_CATS.has(item)) {
       return nsd
         .filter((r) => r.year === year && r.category === item && (month === null || r.month === month))
         .reduce((s, r) => s + Number(r.amount), 0);
