@@ -1,4 +1,4 @@
-import { fetchAll, netRevenue } from "@/lib/queries";
+import { fetchAll, netRevenue, targetItemTypes } from "@/lib/queries";
 import { won, num, pct, rateClass, eok } from "@/lib/format";
 import YearFilter from "@/components/YearFilter";
 
@@ -31,11 +31,7 @@ export default async function TargetPage({ searchParams }) {
       (r) => r.year === year && (month === null || r.month === month)
     );
     if (metric === "매출") {
-      // 목표 항목명 -> 실적의 매출구분 매핑
-      const MAP = {
-        기타매출: ["SNS", "네이버티비", "공동제작매출", "협찬PPL"],
-      };
-      const types = MAP[item] || [item];
+      const types = targetItemTypes(item);
       return d.filter((r) => types.includes(r.revenue_type)).reduce((s, r) => s + netRevenue(r), 0);
     }
     const col = metric === "조회수" ? "views" : "subscribers";
@@ -53,10 +49,12 @@ export default async function TargetPage({ searchParams }) {
   const availMetrics = [...new Set(targets.filter((t) => t.year === year).map((t) => t.metric))];
 
   // 실적은 있는데 목표가 없는 항목 (합계에서 빠지므로 별도로 알린다)
+  // items 는 목표 항목명이므로, 실제 매출구분으로 펼쳐서 비교해야 한다.
+  const coveredTypes = new Set(items.flatMap(targetItemTypes));
   const untracked =
     metric === "매출"
       ? [...new Set(digital.filter((r) => r.year === year).map((r) => r.revenue_type))]
-          .filter((t) => !items.includes(t))
+          .filter((t) => !coveredTypes.has(t))
           .map((t) => ({
             item: t,
             amount: digital
