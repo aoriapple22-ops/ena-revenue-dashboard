@@ -103,8 +103,8 @@ export default async function HomePage() {
 
       <div className="note">
         <strong>데이터 범위 안내</strong><br />
+        · 신사업개발팀 매출은 전 연도 <strong>회계 기준</strong>입니다. 24년은 사업군 분해 자료가 없어 총액만 있습니다.<br />
         · 디지털사업팀 26년 실적은 <strong>1~8월분</strong>까지 반영되어 있습니다.<br />
-        · 신사업개발팀은 26년만 회계 기준이고, 24·25년은 계약 기준입니다 (원본 파일 잠금으로 전환 보류).<br />
         · 프로그램별 수치는 ENA 채널 기준이라 채널별 매출과 합산하지 않습니다.
       </div>
 
