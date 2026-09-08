@@ -47,6 +47,10 @@ export default async function TargetPage({ searchParams }) {
 
   // month=0 은 "연간 목표만 있음"을 뜻한다. 월별 표는 월 단위 목표가 있을 때만 보여준다.
   const hasMonthlyTarget = tRows.some((t) => t.month >= 1);
+  // 월별 표에는 월별 목표가 있는 항목만 넣는다.
+  // (연간 목표만 있는 항목의 실적을 섞으면 목표·실적 범위가 어긋난다)
+  const monthlyItems = [...new Set(tRows.filter((t) => t.month >= 1).map((t) => t.item))];
+  const annualOnlyItems = items.filter((i) => !monthlyItems.includes(i));
   const lastMonth = Math.max(latestActualMonth(digital, year) || 0, latestActualMonth(nsd, year) || 0) || null;
 
   const availMetrics = [...new Set(targets.filter((t) => t.year === year).map((t) => t.metric))];
@@ -176,6 +180,11 @@ export default async function TargetPage({ searchParams }) {
       {hasMonthlyTarget && (
       <div className="card">
         <h2 style={{ fontSize: 15, margin: "0 0 12px" }}>월별 달성률</h2>
+        {annualOnlyItems.length > 0 && (
+          <p className="subtitle" style={{ marginBottom: 10 }}>
+            {annualOnlyItems.join(" · ")}는 연간 목표만 있어 아래 월별 표에서 제외됩니다.
+          </p>
+        )}
         <table>
           <thead>
             <tr>
@@ -187,8 +196,8 @@ export default async function TargetPage({ searchParams }) {
           </thead>
           <tbody>
             {months.map((m) => {
-              const t = items.reduce((s, i) => s + targetOf(i, m), 0);
-              const a = items.reduce((s, i) => s + actualOf(i, m), 0);
+              const t = monthlyItems.reduce((s, i) => s + targetOf(i, m), 0);
+              const a = monthlyItems.reduce((s, i) => s + actualOf(i, m), 0);
               const rate = t ? (a / t) * 100 : null;
               return (
                 <tr key={m}>
