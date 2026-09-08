@@ -1,4 +1,4 @@
-import { fetchAll, netRevenue } from "@/lib/queries";
+import { fetchAll, netRevenue, digitalActualForTargets } from "@/lib/queries";
 import { eok, num, pct, rateClass } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -81,7 +81,9 @@ export default async function HomePage() {
               const nT = tgt(y, "신사업개발팀");
               const dT = tgt(y, "디지털사업팀");
               const nRate = nT ? (nsdY(y) / nT) * 100 : null;
-              const dRate = dT && digNet(y) ? (digNet(y) / dT) * 100 : null;
+              // 목표가 있는 매출구분만 비교한다 (24년 목표는 유튜브 전용이라 전체와 비교하면 왜곡)
+              const dA = digitalActualForTargets(digital, targets, y).actual;
+              const dRate = dT && dA ? (dA / dT) * 100 : null;
               return (
                 <tr key={y}>
                   <td className="l">{y}년</td>
@@ -102,7 +104,7 @@ export default async function HomePage() {
       <div className="note">
         <strong>데이터 범위 안내</strong><br />
         · 신사업개발팀은 25년만 월별이고, 24·26년은 연간 합계만 있습니다.<br />
-        · 26년 디지털 실적은 아직 없습니다 (목표만 등록).<br />
+        · 디지털사업팀 26년 실적은 <strong>1~3월분</strong>까지 반영되어 있습니다.<br />
         · 프로그램별 수치는 ENA 채널 기준이라 채널별 매출과 합산하지 않습니다.
       </div>
 

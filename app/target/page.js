@@ -31,7 +31,12 @@ export default async function TargetPage({ searchParams }) {
       (r) => r.year === year && (month === null || r.month === month)
     );
     if (metric === "매출") {
-      return d.filter((r) => r.revenue_type === item).reduce((s, r) => s + netRevenue(r), 0);
+      // 목표 항목명 -> 실적의 매출구분 매핑
+      const MAP = {
+        기타매출: ["SNS", "네이버티비", "공동제작매출", "협찬PPL"],
+      };
+      const types = MAP[item] || [item];
+      return d.filter((r) => types.includes(r.revenue_type)).reduce((s, r) => s + netRevenue(r), 0);
     }
     const col = metric === "조회수" ? "views" : "subscribers";
     if (item === "전체") return d.reduce((s, r) => s + (Number(r[col]) || 0), 0);
@@ -41,6 +46,9 @@ export default async function TargetPage({ searchParams }) {
   const fmt = metric === "매출" ? won : num;
   const totalT = items.reduce((s, i) => s + targetOf(i, null), 0);
   const totalA = items.reduce((s, i) => s + actualOf(i, null), 0);
+
+  // month=0 은 "연간 목표만 있음"을 뜻한다. 월별 표는 월 단위 목표가 있을 때만 보여준다.
+  const hasMonthlyTarget = tRows.some((t) => t.month >= 1);
 
   const availMetrics = [...new Set(targets.filter((t) => t.year === year).map((t) => t.metric))];
 
@@ -66,7 +74,7 @@ export default async function TargetPage({ searchParams }) {
       <YearFilter
         basePath="/target"
         year={year}
-        years={[2025, 2026]}
+        years={[2024, 2025, 2026]}
         extra={[
           {
             key: "metric",
@@ -79,8 +87,8 @@ export default async function TargetPage({ searchParams }) {
 
       {year === 2026 && (
         <div className="note">
-          2026년은 <strong>목표만 등록되어 있고 실적 데이터가 아직 없습니다.</strong>{" "}
-          주간 실적이 입력되면 달성률이 채워집니다.
+          2026년 실적은 <strong>1~3월분만</strong> 반영되어 있습니다. 연간 목표와 비교하는
+          값이므로 달성률이 낮게 보이는 것이 정상입니다.
         </div>
       )}
 
@@ -157,6 +165,14 @@ export default async function TargetPage({ searchParams }) {
         </div>
       )}
 
+      {!hasMonthlyTarget && (
+        <div className="note">
+          {year}년 {metric} 목표는 <strong>연간 단위로만</strong> 설정되어 있어 월별 달성률을
+          계산할 수 없습니다. 월별 목표가 등록되면 아래 표가 채워집니다.
+        </div>
+      )}
+
+      {hasMonthlyTarget && (
       <div className="card">
         <h2 style={{ fontSize: 15, margin: "0 0 12px" }}>월별 달성률</h2>
         <table>
@@ -185,6 +201,7 @@ export default async function TargetPage({ searchParams }) {
           </tbody>
         </table>
       </div>
+      )}
     </div>
   );
 }

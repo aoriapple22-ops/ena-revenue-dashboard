@@ -40,7 +40,7 @@ export default async function DigitalPage({ searchParams }) {
       <YearFilter
         basePath="/digital"
         year={year}
-        years={[2024, 2025]}
+        years={[2024, 2025, 2026]}
         extra={[
           {
             key: "view",
