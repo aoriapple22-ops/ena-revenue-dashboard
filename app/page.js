@@ -1,5 +1,6 @@
 import { fetchAll, netRevenue, digitalActualForTargets, latestActualMonth } from "@/lib/queries";
 import { eok, num, pct, rateClass } from "@/lib/format";
+import YoyBarChart from "@/components/YoyBarChart";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +12,7 @@ export default async function HomePage() {
   }
 
   const years = [2024, 2025, 2026];
+  const months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
   const nsdY = (y) =>
     nsd.filter((r) => r.year === y).reduce((s, r) => s + Number(r.amount), 0);
@@ -26,6 +28,35 @@ export default async function HomePage() {
   const tgt = (y, team) =>
     targets.filter((t) => t.year === y && t.metric === "매출" && t.team === team)
       .reduce((s, t) => s + Number(t.value), 0);
+
+  // ---- 연도별 월간 비교 그래프 (억원) ----
+  // 실적이 아직 없는 달은 0이 아니라 공백으로 둔다 (0원 실적으로 오해되지 않도록)
+  const monthlySeries = (rows, valueOf) =>
+    years.map((y) => {
+      const last = latestActualMonth(rows, y) || 0;
+      return {
+        year: y,
+        values: months.map((m) => {
+          if (m > last) return null;
+          const v = rows
+            .filter((r) => r.year === y && r.month === m)
+            .reduce((s, r) => s + valueOf(r), 0);
+          return v / 100000000;
+        }),
+      };
+    });
+
+  const nsdSeries = monthlySeries(nsd, (r) => Number(r.amount) || 0);
+  const digSeries = monthlySeries(digital, netRevenue);
+
+  const rangeNote = (rows) =>
+    years
+      .map((y) => {
+        const m = latestActualMonth(rows, y);
+        return m && m < 12 ? `${y}년은 ${m}월까지` : null;
+      })
+      .filter(Boolean)
+      .join(" · ");
 
   return (
     <div>
@@ -100,6 +131,23 @@ export default async function HomePage() {
           </tbody>
         </table>
       </div>
+
+      <YoyBarChart
+        title="신사업개발팀 · 월별 매출 연도 비교"
+        subtitle={
+          "회계 기준" + (rangeNote(nsd) ? ` · 실적 미도래 월은 표시하지 않음 (${rangeNote(nsd)})` : "")
+        }
+        series={nsdSeries}
+      />
+
+      <YoyBarChart
+        title="디지털사업팀 · 월별 순매출 연도 비교"
+        subtitle={
+          "순매출(총매출 − 배분액) 기준" +
+          (rangeNote(digital) ? ` · 실적 미도래 월은 표시하지 않음 (${rangeNote(digital)})` : "")
+        }
+        series={digSeries}
+      />
 
       <div className="note">
         <strong>데이터 범위 안내</strong><br />

@@ -111,6 +111,29 @@ tbody tr:hover { background: #fcfcff; }
 .home-grid a.tile h2 { color: var(--ena-blue); margin: 0 0 8px; font-size: 15px; }
 .home-grid a.tile p { margin: 0; font-size: 12.5px; color: var(--muted); line-height: 1.5; }
 
+/* ---- 차트 ---- */
+.chart {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px 10px;
+  margin-bottom: 18px;
+}
+.chart-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.chart-head h2 { font-size: 15px; margin: 0; }
+.chart-legend { display: flex; gap: 14px; font-size: 12px; color: var(--muted); }
+.chart-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.chart-legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+.chart-sub { font-size: 12px; color: var(--muted); margin: 6px 0 0; }
+.chart svg { width: 100%; height: auto; display: block; margin-top: 6px; }
+.chart .ax { font-size: 10.5px; fill: var(--muted); }
+.chart .ax.unit { font-size: 9.5px; }
+
 /* ---- 로그인 ---- */
 .login-wrap {
   min-height: 78vh;
