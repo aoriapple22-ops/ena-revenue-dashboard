@@ -16,18 +16,25 @@ export default async function DigitalPage({ searchParams }) {
   const channels = [...new Set(rows.map((r) => r.channel))].filter((c) => c !== "해당없음");
   const revTypes = [...new Set(rows.map((r) => r.revenue_type))];
 
-  const agg = (filter) => {
-    const f = rows.filter(filter);
-    return {
-      views: f.reduce((s, r) => s + (Number(r.views) || 0), 0),
-      subs: f.reduce((s, r) => s + (Number(r.subscribers) || 0), 0),
-      gross: f.reduce((s, r) => s + (Number(r.gross_revenue) || 0), 0),
-      share: f.reduce((s, r) => s + (Number(r.share_amount) || 0), 0),
-      net: f.reduce((s, r) => s + netRevenue(r), 0),
-    };
-  };
+  const summarize = (f) => ({
+    views: f.reduce((s, r) => s + (Number(r.views) || 0), 0),
+    subs: f.reduce((s, r) => s + (Number(r.subscribers) || 0), 0),
+    gross: f.reduce((s, r) => s + (Number(r.gross_revenue) || 0), 0),
+    share: f.reduce((s, r) => s + (Number(r.share_amount) || 0), 0),
+    net: f.reduce((s, r) => s + netRevenue(r), 0),
+  });
+
+  const agg = (filter) => summarize(rows.filter(filter));
+
+  // 월별 통합에서는 공동매출(뉴미디어·인서트애드)을 제외한다.
+  // 채널 매출이 아니라 건별 계약 금액이라 월별 추이를 왜곡한다.
+  const EXCLUDED_MONTHLY = ["공동매출(뉴미디어)"];
+  const monthlyRows = rows.filter((r) => !EXCLUDED_MONTHLY.includes(r.revenue_type));
+  const aggM = (filter) => summarize(monthlyRows.filter(filter));
 
   const total = agg(() => true);
+  const monthTotal = aggM(() => true);
+  const excluded = summarize(rows.filter((r) => EXCLUDED_MONTHLY.includes(r.revenue_type)));
   const estimated = rows.some((r) => r.actual_type === "추정");
   const lastMonth = latestActualMonth(digital, year);
 
@@ -124,7 +131,14 @@ export default async function DigitalPage({ searchParams }) {
 
         {view === "month" && (
           <>
-            <h2 style={{ fontSize: 15, margin: "0 0 12px" }}>월별 통합</h2>
+            <h2 style={{ fontSize: 15, margin: "0 0 4px" }}>
+              월별 통합
+              <span className="badge">공동매출 제외</span>
+            </h2>
+            <p className="subtitle" style={{ marginBottom: 12 }}>
+              채널 매출 기준 · 공동매출(뉴미디어·인서트애드){" "}
+              {excluded.net ? won(excluded.net) : "0원"}은 건별 계약이라 제외했습니다.
+            </p>
             <table>
               <thead>
                 <tr>
@@ -138,8 +152,10 @@ export default async function DigitalPage({ searchParams }) {
               </thead>
               <tbody>
                 {months.map((m) => {
-                  const a = agg((r) => r.month === m);
-                  const est = rows.some((r) => r.month === m && r.actual_type === "추정");
+                  const a = aggM((r) => r.month === m);
+                  const est = monthlyRows.some(
+                    (r) => r.month === m && r.actual_type === "추정"
+                  );
                   return (
                     <tr key={m}>
                       <td className="l">
@@ -155,14 +171,20 @@ export default async function DigitalPage({ searchParams }) {
                 })}
                 <tr className="total-row">
                   <td className="l">합계</td>
-                  <td>{num(total.views)}</td>
-                  <td>{num(total.subs)}</td>
-                  <td>{won(total.gross)}</td>
-                  <td>{total.share ? won(total.share) : "-"}</td>
-                  <td>{won(total.net)}</td>
+                  <td>{num(monthTotal.views)}</td>
+                  <td>{num(monthTotal.subs)}</td>
+                  <td>{won(monthTotal.gross)}</td>
+                  <td>{monthTotal.share ? won(monthTotal.share) : "-"}</td>
+                  <td>{won(monthTotal.net)}</td>
                 </tr>
               </tbody>
             </table>
+            {excluded.net > 0 && (
+              <p className="subtitle" style={{ marginTop: 10, marginBottom: 0 }}>
+                위 합계 {won(monthTotal.net)} + 공동매출 {won(excluded.net)} ={" "}
+                <strong>전체 순매출 {won(total.net)}</strong> (상단 카드 값)
+              </p>
+            )}
           </>
         )}
 
