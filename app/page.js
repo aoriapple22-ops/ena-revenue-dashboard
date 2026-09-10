@@ -1,4 +1,11 @@
-import { fetchAll, netRevenue, digitalActualForTargets, latestActualMonth } from "@/lib/queries";
+import {
+  fetchAll,
+  netRevenue,
+  digitalActualForTargets,
+  latestActualMonth,
+  excludeMonthlyTypes,
+  MONTHLY_EXCLUDED_LABEL,
+} from "@/lib/queries";
 import { eok, num, pct, rateClass } from "@/lib/format";
 import YoyBarChart from "@/components/YoyBarChart";
 
@@ -47,7 +54,9 @@ export default async function HomePage() {
     });
 
   const nsdSeries = monthlySeries(nsd, (r) => Number(r.amount) || 0);
-  const digSeries = monthlySeries(digital, netRevenue);
+  // 디지털 그래프는 채널 매출 흐름을 보는 것이므로 공동매출(건별 계약)을 뺀다
+  const digChannelRows = excludeMonthlyTypes(digital);
+  const digSeries = monthlySeries(digChannelRows, netRevenue);
 
   const rangeNote = (rows) =>
     years
@@ -143,8 +152,10 @@ export default async function HomePage() {
       <YoyBarChart
         title="디지털사업팀 · 월별 순매출 연도 비교"
         subtitle={
-          "순매출(총매출 − 배분액) 기준" +
-          (rangeNote(digital) ? ` · 실적 미도래 월은 표시하지 않음 (${rangeNote(digital)})` : "")
+          `순매출(총매출 − 배분액) 기준 · ${MONTHLY_EXCLUDED_LABEL} 제외` +
+          (rangeNote(digChannelRows)
+            ? ` · 실적 미도래 월은 표시하지 않음 (${rangeNote(digChannelRows)})`
+            : "")
         }
         series={digSeries}
       />

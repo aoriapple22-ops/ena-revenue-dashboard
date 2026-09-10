@@ -1,4 +1,10 @@
-import { fetchAll, netRevenue, latestActualMonth } from "@/lib/queries";
+import {
+  fetchAll,
+  netRevenue,
+  latestActualMonth,
+  excludeMonthlyTypes,
+  MONTHLY_EXCLUDED_LABEL,
+} from "@/lib/queries";
 import { won, num, eok } from "@/lib/format";
 import YearFilter from "@/components/YearFilter";
 
@@ -26,15 +32,15 @@ export default async function DigitalPage({ searchParams }) {
 
   const agg = (filter) => summarize(rows.filter(filter));
 
-  // 월별 통합에서는 공동매출(뉴미디어·인서트애드)을 제외한다.
+  // 월별 통합에서는 공동매출(뉴미디어·인서트애드)을 제외한다 (기준은 lib/queries.js에 정의).
   // 채널 매출이 아니라 건별 계약 금액이라 월별 추이를 왜곡한다.
-  const EXCLUDED_MONTHLY = ["공동매출(뉴미디어)"];
-  const monthlyRows = rows.filter((r) => !EXCLUDED_MONTHLY.includes(r.revenue_type));
+  const monthlyRows = excludeMonthlyTypes(rows);
+  const excludedRows = rows.filter((r) => !monthlyRows.includes(r));
   const aggM = (filter) => summarize(monthlyRows.filter(filter));
 
   const total = agg(() => true);
   const monthTotal = aggM(() => true);
-  const excluded = summarize(rows.filter((r) => EXCLUDED_MONTHLY.includes(r.revenue_type)));
+  const excluded = summarize(excludedRows);
   const estimated = rows.some((r) => r.actual_type === "추정");
   const lastMonth = latestActualMonth(digital, year);
 
@@ -136,7 +142,7 @@ export default async function DigitalPage({ searchParams }) {
               <span className="badge">공동매출 제외</span>
             </h2>
             <p className="subtitle" style={{ marginBottom: 12 }}>
-              채널 매출 기준 · 공동매출(뉴미디어·인서트애드){" "}
+              채널 매출 기준 · {MONTHLY_EXCLUDED_LABEL}{" "}
               {excluded.net ? won(excluded.net) : "0원"}은 건별 계약이라 제외했습니다.
             </p>
             <table>
