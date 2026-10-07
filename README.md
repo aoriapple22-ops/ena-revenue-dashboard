@@ -110,6 +110,15 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon key>
 
 > 공통 비밀번호 방식이라 **누가 접속했는지는 알 수 없습니다.** 사용자별 계정과 감사 로그가 필요해지면 별도 인증 도입이 필요합니다.
 
+## Supabase 자동 중지 방지
+
+무료 플랜은 약 1주일간 요청이 없으면 프로젝트가 자동 중지되고, 그러면 모든 화면이 `fetch failed`로 멈춥니다.
+`vercel.json`의 Cron이 매주 월·목 09:00(KST)에 `/api/keepalive`를 호출해 DB를 깨워 둡니다.
+
+- `/api/keepalive`는 로그인 없이 열리지만 데이터는 반환하지 않습니다 (`targets` 테이블 건수 조회만 수행)
+- Vercel 환경변수에 `CRON_SECRET`을 추가하면 Vercel Cron이 보내는 토큰이 있는 요청만 허용합니다 (선택)
+- 중지됐다면 Supabase 대시보드에서 **Resume project**를 눌러 복구합니다
+
 ## 이번 범위에서 만들지 않은 것
 
 - 대시보드에서 데이터를 직접 입력·수정하는 기능 (조회 전용)
